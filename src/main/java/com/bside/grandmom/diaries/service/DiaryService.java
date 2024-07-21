@@ -1,34 +1,33 @@
-package com.bside.grandmom.controller;
+package com.bside.grandmom.diaries.service;
 
+import com.bside.grandmom.diaries.prompt.Prompt;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@RestController
-public class GrandMomController {
-
+@Service
+@RequiredArgsConstructor
+public class DiaryService {
+    @Value("${openai.api.key}")
+    private final String APIKEY;
     private final RestTemplate restTemplate;
-    private final String apiKey;
 
-    public GrandMomController(RestTemplate restTemplate, @Value("${openai.api.key}") String apiKey) {
-        this.restTemplate = restTemplate;
-        this.apiKey = apiKey;
-    }
+    //    public DiaryController(RestTemplate restTemplate, @Value("${openai.api.key}") String apiKey) {
+//        this.restTemplate = restTemplate;
+//        this.apiKey = apiKey;
+//    }
 
-    @GetMapping("/describeImage")
-    public ResponseEntity<String> describeImage(@RequestParam String imageUrl) {
-        // 메시지 작성
-        String prompt = "What’s in this image? describe in Korea";
+    public ResponseEntity<String> describeImage(String imageUrl) {
+        String prompt = String.valueOf(Prompt.DESCRIBE);
 
         // 요청 본문 작성
         Map<String, Object> imageContent = new HashMap<>();
@@ -55,7 +54,7 @@ public class GrandMomController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
+        headers.setBearerAuth(APIKEY);
 
         HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
 

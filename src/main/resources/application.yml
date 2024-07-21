@@ -1,6 +1,37 @@
+server:
+  servlet:
+    context-path: /grandmom
+
 spring:
   application:
     name: grandmom
+
+  datasource:
+    driver-class-name: ${db.driver-class-name}
+    url: ${db.url}
+    username: ${db.username}
+    password: ${db.password}
+
+  config:
+    import: secret.yml
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true #To beautify or pretty print the SQL
+        show_sql: true #show sql
+
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+    path: /api
+    disable-swagger-default-url: true
+#    display-query-params-without-oauth2: true
 
 # Add JVM arguments
 jvm:
