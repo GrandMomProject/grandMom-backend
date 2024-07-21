@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: grandmom
+
+# Add JVM arguments
+jvm:
+  args: "--add-opens java.base/sun.security.ssl=ALL-UNNAMED"
