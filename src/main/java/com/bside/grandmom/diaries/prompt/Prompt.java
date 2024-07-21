@@ -1,14 +1,14 @@
 package com.bside.grandmom.diaries.prompt;
 
 public enum Prompt {
-    DESCRIBE("What’s in this image? describe in Korea"),
+    DESCRIBE("Describe the photo in Korean"),
     ;
 
 
     private final String prompt;
 
-    Prompt(String message) {
-        this.prompt = message;
+    Prompt(String prompt) {
+        this.prompt = prompt;
     }
 
 

@@ -18,16 +18,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DiaryService {
     @Value("${openai.api.key}")
-    private final String APIKEY;
+    private String APIKEY;
     private final RestTemplate restTemplate;
 
-    //    public DiaryController(RestTemplate restTemplate, @Value("${openai.api.key}") String apiKey) {
-//        this.restTemplate = restTemplate;
-//        this.apiKey = apiKey;
-//    }
-
     public ResponseEntity<String> describeImage(String imageUrl) {
-        String prompt = String.valueOf(Prompt.DESCRIBE);
+        String prompt = Prompt.DESCRIBE.getPrompt();
 
         // 요청 본문 작성
         Map<String, Object> imageContent = new HashMap<>();
