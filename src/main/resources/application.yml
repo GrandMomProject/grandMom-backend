@@ -33,6 +33,9 @@ springdoc:
     disable-swagger-default-url: true
 #    display-query-params-without-oauth2: true
 
+openai:
+  vision-url: https://api.openai.com/v1/chat/completions
+
 # Add JVM arguments
 jvm:
   args: "--add-opens java.base/sun.security.ssl=ALL-UNNAMED"

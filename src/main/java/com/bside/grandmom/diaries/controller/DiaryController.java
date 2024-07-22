@@ -1,14 +1,20 @@
 package com.bside.grandmom.diaries.controller;
 
+import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.diaries.service.DiaryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/diary")
@@ -24,8 +30,8 @@ public class DiaryController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이미지 전송 성공"),
             @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
-    @PostMapping("/image")
-    public ResponseEntity<String> image(@RequestParam String imageUrl) {
-        return diaryService.describeImage(imageUrl);
+    @GetMapping("/image")
+    public ResponseEntity<ResponseDto> image(@RequestPart(required = false, name = "image") MultipartFile image) throws IOException {
+        return diaryService.describeImage(image);
     }
 }

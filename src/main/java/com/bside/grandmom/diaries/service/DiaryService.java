@@ -1,72 +1,71 @@
 package com.bside.grandmom.diaries.service;
 
+import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.diaries.prompt.Prompt;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
+import java.io.IOException;
+import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
-    @Value("${openai.api.key}")
-    private String APIKEY;
-    private final RestTemplate restTemplate;
 
-    public ResponseEntity<String> describeImage(String imageUrl) {
+    private final OpenAiClientService openAiClientService;
+
+    @Value("${openai.vision-url}")
+    private String VISIONURL;
+
+    /**
+     * OpenAi 이용한 이미지 분석 (vision)
+     * */
+    public ResponseEntity<ResponseDto> describeImage(MultipartFile image) throws IOException {
         String prompt = Prompt.DESCRIBE.getPrompt();
+        String base64Image = encodeImage(image);
 
-        // 요청 본문 작성
-        Map<String, Object> imageContent = new HashMap<>();
-        imageContent.put("type", "image_url");
-        Map<String, String> imageUrlContent = new HashMap<>();
-        imageUrlContent.put("url", imageUrl);
-        imageUrlContent.put("detail", "low");
-        imageContent.put("image_url", imageUrlContent);
-
-        Map<String, Object> textContent = new HashMap<>();
-        textContent.put("type", "text");
-        textContent.put("text", prompt);
-
-        Map<String, Object>[] contents = new Map[]{textContent, imageContent};
-
-        Map<String, Object> userMessage = new HashMap<>();
-        userMessage.put("role", "user");
-        userMessage.put("content", contents);
-
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gpt-4o-mini");
-        requestBody.put("messages", new Map[]{userMessage});
-        requestBody.put("max_tokens", 300);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(APIKEY);
-
-        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
-
-        // OpenAI API 호출
-        String apiUrl = "https://api.openai.com/v1/chat/completions";
+        // requestBody 구성
+        Map<String, Object> requestBody = openAiClientService.createVisionRequestBody(base64Image, prompt);
 
         try {
-            Map<String, Object> response = restTemplate.postForObject(apiUrl, requestEntity, Map.class);
+            Map<String, Object> response = openAiClientService.callOpenAiApi(VISIONURL, requestBody);
 
-            // 응답 반환
-            if (response != null && response.containsKey("choices")) {
-                return ResponseEntity.ok(response.get("choices").toString());
-            } else {
-                return ResponseEntity.status(500).body("No response from OpenAI API");
-            }
-        } catch (HttpClientErrorException e) {
-            return ResponseEntity.status(e.getStatusCode()).body("Error: " + e.getMessage());
+            return handleVisionApiResponse(response);
+        } catch (Error e) {
+            throw e;
         }
     }
+
+    /**
+     * vision api response 값 extract
+     * */
+    private ResponseEntity<ResponseDto> handleVisionApiResponse(Map<String, Object> response) {
+        // 응답 반환
+        if (response != null && response.containsKey("choices")) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            List<Map<String, Object>> choices = objectMapper.convertValue(response.get("choices"), List.class);
+            Map<String, Object> choice = choices.get(0);
+            Map<String, Object> message = (Map<String, Object>) choice.get("message");
+            String content = (String) message.get("content");
+            return ResponseDto.success(content);
+        } else {
+            return ResponseDto.error("500", "error");
+        }
+    }
+
+
+    /**
+     * encode the image
+     * */
+    private String encodeImage(MultipartFile imageFile) throws IOException {
+        byte[] imageBytes = imageFile.getBytes();
+        return Base64.getEncoder().encodeToString(imageBytes);
+    }
+
 }

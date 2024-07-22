@@ -1,7 +1,7 @@
 package com.bside.grandmom.diaries.prompt;
 
 public enum Prompt {
-    DESCRIBE("Describe the photo in Korean"),
+    DESCRIBE("사진에 대해 설명해봐 한국어로 말해"),
     ;
 
 
