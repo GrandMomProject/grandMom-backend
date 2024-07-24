@@ -48,3 +48,9 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootJar{
+    archivesBaseName = 'grandmom'
+    archiveFileName = 'grandmom-api-0.1.jar'
+    archiveVersion = "0.1.0"
+}

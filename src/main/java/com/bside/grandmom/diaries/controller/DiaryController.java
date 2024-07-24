@@ -1,13 +1,12 @@
 package com.bside.grandmom.diaries.controller;
 
 import com.bside.grandmom.common.ResponseDto;
+import com.bside.grandmom.diaries.dto.*;
 import com.bside.grandmom.diaries.service.DiaryService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +24,55 @@ public class DiaryController {
     private final DiaryService diaryService;
 
     @Operation(
-            summary = "로그인 API", description = "유저 정보를 저장합니다."
+            summary = "이미지 전송 API", description = "사진을 전송합니다."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이미지 전송 성공"),
             @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
-    @GetMapping("/image")
-    public ResponseEntity<ResponseDto> image(@RequestPart(required = false, name = "image") MultipartFile image) throws IOException {
-        return diaryService.describeImage(image);
+    @PostMapping("/image")
+    public ResponseEntity<ResponseDto> image(@RequestPart(name = "image") MultipartFile image,
+                                             @RequestPart(required = false, name = "req") ImageReqDto req) throws IOException {
+//        return diaryService.describeImage(image);
+        try {
+            Thread.sleep(3000); // 3000 milliseconds = 3 seconds
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ImageResDto res = new ImageResDto();
+        res.setDiaryID("sampleID1234");
+        res.setQuestion("이 사진은 어느 해변에서 찍으셨나요? 그리고 그곳에서 어떤 활동을 하셨는지 궁금합니다.");
+        return ResponseDto.success(res);
+    }
+
+    @Operation(
+            summary = "질문 요청 API", description = "대답을 보내고 질문을 받습니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "질문 전송 성공"),
+            @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
+    @PostMapping("/question")
+    public ResponseEntity<ResponseDto> question(@RequestBody QuestionReqDto req) throws IOException {
+        int ansCnt = req.getAnswerCount() + 1;
+        QuestionResDto resDto = new QuestionResDto("sampleID1234", "질문" + ansCnt, "QUESTION");
+        return ResponseDto.success(resDto);
+    }
+
+    @Operation(
+            summary = "일기 생성 API", description = "업로드한 사진에 대한 주고받은 대화를 통해 일기를 생성합니다."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "일기 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
+    @GetMapping("/diary")
+    public ResponseEntity<ResponseDto> diary(@RequestParam String diaryID) throws IOException {
+        DiaryResDto res = new DiaryResDto();
+        res.setDiaryID("sampleID1234");
+        res.setSummary1("요약1번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약1번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약1번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약1번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약1번입니다 글자수를 채우기 위한 텍스트입니다.200글자");
+        res.setSummary2("요약2번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약2번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약2번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약2번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약2번입니다 글자수를 채우기 위한 텍스트입니다.200글자");
+        res.setSummary3("요약3번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약3번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약3번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약3번입니다 글자수를 채우기 위한 텍스트입니다.더미더미 더미더미 당근당근 요약3번입니다 글자수를 채우기 위한 텍스트입니다.200글자");
+        res.setVoiceURL1("dummyURL1");
+        res.setVoiceURL2("dummyURL2");
+        res.setVoiceURL3("dummyURL3");
+        return ResponseDto.success(res);
     }
 }

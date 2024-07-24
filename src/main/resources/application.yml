@@ -6,6 +6,11 @@ spring:
   application:
     name: grandmom
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
   datasource:
     driver-class-name: ${db.driver-class-name}
     url: ${db.url}
