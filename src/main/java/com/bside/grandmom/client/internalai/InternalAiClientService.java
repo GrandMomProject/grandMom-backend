@@ -2,6 +2,7 @@ package com.bside.grandmom.client.internalai;
 
 import com.bside.grandmom.client.internalai.dto.ChatHistoryRequestModel;
 import com.bside.grandmom.client.internalai.dto.SummaryResponseModel;
+import com.bside.grandmom.diaries.domain.DiarySessionEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +40,7 @@ public class InternalAiClientService {
         return response.getBody();
     }
 
-    public String additionalInterview(String imageDescription, List<String> chatHistories, String answer) throws Exception {
+    public String additionalInterview(String imageDescription, List<DiarySessionEntity> chatHistories, String answer) throws Exception {
         Map<String, String> requestBody = Map.ofEntries(
             entry("chatHistory", convertChatHistory(imageDescription, chatHistories)),
             entry("answer", answer)
@@ -48,16 +50,20 @@ public class InternalAiClientService {
         return response.getBody();
     }
 
-    public SummaryResponseModel summary(String imageDescription, List<String> chatHistories) throws Exception {
+    public SummaryResponseModel summary(String imageDescription, List<DiarySessionEntity> chatHistories) throws Exception {
         Map<String, String> requestBody = Map.of("chatHistory", convertChatHistory(imageDescription, chatHistories));
 
         ResponseEntity<String> response = restTemplate.postForEntity(host + "/summary", requestBody, String.class);
         return  MAPPER.readValue(response.getBody(), SummaryResponseModel.class);
     }
 
-    private String convertChatHistory(String imageDescription, List<?> chatHistories) throws Exception {
-        // TODO DB 조회된 대화이력을 요청 모델에 변환해야함
-        ChatHistoryRequestModel requestModel = new ChatHistoryRequestModel(imageDescription, List.of());
+    private String convertChatHistory(String imageDescription, List<DiarySessionEntity> chatHistories) throws Exception {
+        List<ChatHistoryRequestModel.ChatHistoryModel> chatHistoryModelModels = chatHistories.stream()
+                .sorted(Comparator.comparing(DiarySessionEntity::getAnswerCount))
+                .map(e -> new ChatHistoryRequestModel.ChatHistoryModel(e.getQuestion(), e.getAnswer()))
+                .toList();
+
+        ChatHistoryRequestModel requestModel = new ChatHistoryRequestModel(imageDescription, chatHistoryModelModels);
         return MAPPER.writeValueAsString(Map.of("chatHistory", requestModel));
     }
 

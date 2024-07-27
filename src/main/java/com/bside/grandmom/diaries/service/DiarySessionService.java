@@ -7,13 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class DiarySessionService {
-
     private final DiarySessionRepository diarySessionRepository;
 
-    @Transactional
     public void createDiarySession(UserEntity user, String question) {
         clearSession(user);
         addQuestion(user, 1, question);
@@ -23,7 +24,6 @@ public class DiarySessionService {
         diarySessionRepository.deleteByUser(user);
     }
 
-    @Transactional
     public void addAnswer(UserEntity user, int answerCount, String answer) {
         DiarySessionEntity sessionRecord = diarySessionRepository.findByUserAndAnswerCount(user, answerCount)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 다이어리 세션을 찾을 수 없음."));
@@ -31,13 +31,16 @@ public class DiarySessionService {
         sessionRecord.changeAnswer(answer);
     }
 
-    @Transactional
     public void addQuestion(UserEntity user, int answerCount, String question) {
         diarySessionRepository.save(DiarySessionEntity.builder()
                 .user(user)
                 .question(question)
                 .answerCount(answerCount)
                 .build());
+    }
+
+    public List<DiarySessionEntity> getChatHistories(UserEntity user) {
+        return diarySessionRepository.findAllByUser(user);
     }
 
 }

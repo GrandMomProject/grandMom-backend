@@ -6,6 +6,7 @@ import com.bside.grandmom.client.openai.OpenAiClientService;
 import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.context.AccessContext;
 import com.bside.grandmom.context.AccessContextHolder;
+import com.bside.grandmom.diaries.domain.DiarySessionEntity;
 import com.bside.grandmom.diaries.dto.QuestionReqDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto.QuestionValue;
@@ -131,11 +132,11 @@ public class DiaryService {
     public ResponseDto<QuestionResDto> question(QuestionReqDto request) {
         AccessContext context = AccessContextHolder.getAccessContext();
         UserEntity user = userService.getUser(context.uid(), context.did());
-        List<String> chatHistories = List.of(); // TODO DB 스펙 나오면 조회해와야함
-        String operationType = determineOperationType(request);
-
         diarySessionService.addAnswer(user, request.getAnswerCount(), request.getAnswer());
 
+        String operationType = determineOperationType(request);
+
+        List<DiarySessionEntity> chatHistories = diarySessionService.getChatHistories(user);
         QuestionResDto.Value value = callAPI(operationType, request, user, chatHistories);
 
         if (operationType.equals(QUESTION)) {
@@ -153,7 +154,7 @@ public class DiaryService {
         }
     }
 
-    private QuestionResDto.Value callAPI(String operationType, QuestionReqDto request, UserEntity user, List<String> chatHistories) {
+    private QuestionResDto.Value callAPI(String operationType, QuestionReqDto request, UserEntity user, List<DiarySessionEntity> chatHistories) {
         try {
             return switch (operationType) {
                 case QUESTION -> {

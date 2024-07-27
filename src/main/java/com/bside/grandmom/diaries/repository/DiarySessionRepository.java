@@ -5,6 +5,7 @@ import com.bside.grandmom.users.domain.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -12,4 +13,6 @@ public interface DiarySessionRepository extends JpaRepository<DiarySessionEntity
     void deleteByUser(UserEntity user);
 
     Optional<DiarySessionEntity> findByUserAndAnswerCount(UserEntity user, int answerCount);
+
+    List<DiarySessionEntity> findAllByUser(UserEntity user);
 }

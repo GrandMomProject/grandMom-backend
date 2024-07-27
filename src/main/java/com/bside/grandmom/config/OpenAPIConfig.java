@@ -24,19 +24,23 @@ public class OpenAPIConfig {
         devHttpsServer.setUrl("http://localhost:8080/grandmom");
 
 
-//        SecurityScheme apiKey = new SecurityScheme()
-//                .type(SecurityScheme.Type.APIKEY)
-//                .in(SecurityScheme.In.HEADER)
-//                .name("Authorization")
-//                .scheme("Bearer")  // 추가: 스키마 타입 명시
-//                .bearerFormat("JWT");  // 추가: 베어러 포맷 명시
+        SecurityScheme uid = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER)
+                .name("uid");
 
-//        SecurityRequirement securityRequirement = new SecurityRequirement()
-//                .addList("api_key", java.util.Arrays.asList("global"));  // "global"은 모든 연산에 대한 접근을 요구함을 의미
+        SecurityScheme did = new SecurityScheme()
+                .type(SecurityScheme.Type.APIKEY)
+                .in(SecurityScheme.In.HEADER)
+                .name("did");
+
         OpenAPI openAPI = new OpenAPI()
-//                .components(new Components().addSecuritySchemes("api_key", apiKey))
+                .components(new Components()
+                        .addSecuritySchemes("uid", uid)
+                        .addSecuritySchemes("did", did)
+                )
+                .addSecurityItem(new SecurityRequirement().addList("uid").addList("did"))
                 .info(apiInfo());
-//                .addSecurityItem(securityRequirement);
 
 
         openAPI.setServers(Arrays.asList(prodHttpsServer, devHttpsServer));
