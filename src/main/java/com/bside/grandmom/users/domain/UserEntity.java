@@ -6,11 +6,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Builder
+@Builder(toBuilder = true)
 @Table(name = "USER", uniqueConstraints = {
         @UniqueConstraint(columnNames = "UID"),
         @UniqueConstraint(columnNames = "DID")
@@ -32,4 +34,10 @@ public class UserEntity {
 
     @Column(name = "AGREEMENT_YN")
     private char agreementYn;
+
+    @Column(name = "REG_DT")
+    private Date regDt;
+
+    @Column(name = "UPD_DT")
+    private Date updDt;
 }

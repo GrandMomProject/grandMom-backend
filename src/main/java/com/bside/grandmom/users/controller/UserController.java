@@ -26,12 +26,7 @@ import java.io.IOException;
 public class UserController {
     private final UserService userService;
 
-    @Operation(summary = "이미지 전송 API", description = "사진을 전송합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "이미지 전송 성공"),
-            @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")
-    })
-    @PostMapping(value = "/reg", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping("/reg")
     public ResponseEntity<ResponseDto> reg(@RequestBody RegReqDto req) {
 
         return userService.memberReg(req);
