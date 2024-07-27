@@ -147,7 +147,7 @@ public class DiaryService {
     }
 
     private String determineOperationType(QuestionReqDto request) {
-        if (request.getAnswerCount() > REQUIRE_ANSWER_COUNT_FOR_SUMMARY) {
+        if (request.getAnswerCount() >= REQUIRE_ANSWER_COUNT_FOR_SUMMARY) {
             return SUMMARY;
         } else {
             return QUESTION;
