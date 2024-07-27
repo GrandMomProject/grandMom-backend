@@ -42,8 +42,8 @@ springdoc:
 openai:
   vision-url: https://api.openai.com/v1/chat/completions
 
-ncp:
-  common-url: http://223.130.131.239:38888
+internal-ai:
+  access-url: http://223.130.131.239:38888
 
 # Add JVM arguments
 jvm:

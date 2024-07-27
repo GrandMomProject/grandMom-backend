@@ -1,21 +1,16 @@
 package com.bside.grandmom.users.controller;
 
 import com.bside.grandmom.common.ResponseDto;
-import com.bside.grandmom.diaries.dto.ImageReqDto;
 import com.bside.grandmom.users.dto.RegReqDto;
 import com.bside.grandmom.users.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
@@ -29,6 +24,6 @@ public class UserController {
     @PostMapping("/reg")
     public ResponseEntity<ResponseDto> reg(@RequestBody RegReqDto req) {
 
-        return userService.memberReg(req);
+        return ResponseEntity.ok(userService.memberReg(req));
     }
 }

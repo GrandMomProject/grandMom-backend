@@ -5,7 +5,6 @@ import com.bside.grandmom.diaries.prompt.Prompt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,7 +19,7 @@ import java.util.Map;
 public class DiaryService {
 
     private final OpenAiClientService openAiClientService;
-    private final NcpClientService ncpClientService;
+    private final InternalAiService internalAiService;
 
     @Value("${openai.vision-url}")
     private String VISIONURL;
@@ -28,24 +27,19 @@ public class DiaryService {
     /**
      * OpenAi 이용한 이미지 분석 (vision)
      * */
-    public ResponseEntity<ResponseDto> describeImage(MultipartFile image) throws IOException {
+    public ResponseDto describeImage(MultipartFile image) throws IOException {
         String prompt = Prompt.DESCRIBE.getPrompt();
         String base64Image = encodeImage(image);
 
         // requestBody 구성
         Map<String, Object> requestBody = openAiClientService.createVisionRequestBody(base64Image, prompt);
 
-        try {
-            Map<String, Object> describeText = openAiClientService.callOpenAiApi(VISIONURL, requestBody);
-            String response = ncpClientService.createFirstInterview(handleVisionApiResponse(describeText));
-//            String response = ncpClientService.createFirstInterview("사진에는 두 사람이 공중에서 점프하고 있는 모습이 담겨 있습니다. 배경에는 아름다운 호숫가 풍경과 산들이 보이며, 주위에는 노란 잎사귀들이 떨어져 있습니다. 하늘은 푸르고 맑아 분위기가 화창합니다. 두 사람은 밝은 표정을 지으며 즐거운 순간을 공유하고 있는 것 같습니다.");
+        Map<String, Object> describeText = openAiClientService.callOpenAiApi(VISIONURL, requestBody);
+        String response = internalAiService.createFirstInterview(handleVisionApiResponse(describeText));
 
-            Map<String, Object> result = new HashMap<>();
-            result.put("question", response);
-            return ResponseDto.success(result);
-        } catch (Error e) {
-            throw e;
-        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("question", response);
+        return ResponseDto.success(result);
     }
 
     /**
@@ -58,13 +52,11 @@ public class DiaryService {
             List<Map<String, Object>> choices = objectMapper.convertValue(response.get("choices"), List.class);
             Map<String, Object> choice = choices.get(0);
             Map<String, Object> message = (Map<String, Object>) choice.get("message");
-            String content = (String) message.get("content");
-            return content;
+            return (String) message.get("content");
         } else {
             return null;
         }
     }
-
 
     /**
      * encode the image

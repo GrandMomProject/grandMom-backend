@@ -5,17 +5,18 @@ import com.bside.grandmom.users.domain.UserEntity;
 import com.bside.grandmom.users.dto.RegReqDto;
 import com.bside.grandmom.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
 
-    public ResponseEntity<ResponseDto> memberReg(RegReqDto req) {
+    public ResponseDto memberReg(RegReqDto req) {
         try {
             // UID 또는 DID가 중복된 사용자가 있는지 확인
             UserEntity existingUser = userRepository.findByDid(req.getDid());
@@ -43,10 +44,9 @@ public class UserService {
                 userRepository.save(user);
             }
 
-
-
             return ResponseDto.success();
-        } catch (Error error) {
+        } catch (Exception error) {
+            log.error("Failed Join.. Server Error", error);
             return ResponseDto.error("999", "Failed Join.. Server Error");
         }
 
