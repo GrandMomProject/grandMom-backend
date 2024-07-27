@@ -1,12 +1,15 @@
 package com.bside.grandmom.users.domain;
 
+import com.bside.grandmom.diaries.domain.DiaryEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -43,4 +46,7 @@ public class UserEntity {
 
     @Column(name = "UPD_DT")
     private Date updDt;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DiaryEntity> diaries = new ArrayList<>();
 }
