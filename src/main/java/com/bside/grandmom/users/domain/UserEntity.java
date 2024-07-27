@@ -35,6 +35,9 @@ public class UserEntity {
     @Column(name = "AGREEMENT_YN")
     private char agreementYn;
 
+    @Column(name = "IMG_DESC")
+    private char imgDesc;
+
     @Column(name = "REG_DT")
     private Date regDt;
 
