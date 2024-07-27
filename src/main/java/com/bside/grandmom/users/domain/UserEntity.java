@@ -1,6 +1,6 @@
 package com.bside.grandmom.users.domain;
 
-import com.bside.grandmom.diaries.domain.DiaryEntity;
+import com.bside.grandmom.diaries.domain.DiarySessionEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,7 +49,7 @@ public class UserEntity {
     private Date updDt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DiaryEntity> diaries = new ArrayList<>();
+    private List<DiarySessionEntity> diaries = new ArrayList<>();
 
     public void updateImgDesc(String imgDesc, Date updDt) {
         this.imgDesc = imgDesc;

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Builder
 @Table(name = "Diary")
-public class DiaryEntity {
+public class DiarySessionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "DIARY_NO")
@@ -33,4 +33,8 @@ public class DiaryEntity {
 
     @Column(name = "ANSWERCOUNT")
     private Integer answerCount;
+
+    public void changeAnswer(String answer) {
+        this.answer = answer;
+    }
 }

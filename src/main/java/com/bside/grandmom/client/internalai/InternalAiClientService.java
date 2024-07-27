@@ -1,7 +1,7 @@
 package com.bside.grandmom.client.internalai;
 
 import com.bside.grandmom.client.internalai.dto.ChatHistoryRequestModel;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.bside.grandmom.client.internalai.dto.SummaryResponseModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,12 +48,11 @@ public class InternalAiClientService {
         return response.getBody();
     }
 
-    public List<String> summary(String imageDescription, List<String> chatHistories) throws Exception {
+    public SummaryResponseModel summary(String imageDescription, List<String> chatHistories) throws Exception {
         Map<String, String> requestBody = Map.of("chatHistory", convertChatHistory(imageDescription, chatHistories));
 
         ResponseEntity<String> response = restTemplate.postForEntity(host + "/summary", requestBody, String.class);
-        return MAPPER.readValue(response.getBody(), new TypeReference<>() {
-        });
+        return  MAPPER.readValue(response.getBody(), SummaryResponseModel.class);
     }
 
     private String convertChatHistory(String imageDescription, List<?> chatHistories) throws Exception {

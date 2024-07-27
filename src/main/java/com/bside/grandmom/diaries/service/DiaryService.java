@@ -1,24 +1,21 @@
 package com.bside.grandmom.diaries.service;
 
 import com.bside.grandmom.client.internalai.InternalAiClientService;
+import com.bside.grandmom.client.internalai.dto.SummaryResponseModel;
 import com.bside.grandmom.client.openai.OpenAiClientService;
 import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.context.AccessContext;
 import com.bside.grandmom.context.AccessContextHolder;
-import com.bside.grandmom.diaries.domain.DiaryEntity;
 import com.bside.grandmom.diaries.dto.QuestionReqDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto.QuestionValue;
 import com.bside.grandmom.diaries.dto.QuestionResDto.SummaryValue;
 import com.bside.grandmom.diaries.prompt.Prompt;
-import com.bside.grandmom.diaries.repository.DiaryRepository;
 import com.bside.grandmom.users.domain.UserEntity;
-import com.bside.grandmom.users.repository.UserRepository;
 import com.bside.grandmom.users.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -44,8 +40,7 @@ public class DiaryService {
     private final OpenAiClientService openAiClientService;
     private final InternalAiClientService internalAiClientService;
     private final UserService userService;
-    private final DiaryRepository diaryRepository;
-    private final UserRepository userRepository;
+    private final DiarySessionService diarySessionService;
 
     @Value("${openai.vision-url}")
     private String visionUrl;
@@ -76,12 +71,16 @@ public class DiaryService {
 
         // 첫번째 질문 생성 및 저장
         String response = internalAiClientService.createFirstInterview(imageDesc);
-        diaryRepository.deleteByUser(user);
-        DiaryEntity diaryEntity = DiaryEntity.builder()
-                .question(response)
-                .user(user)
-                .build();
-        diaryRepository.save(diaryEntity);
+        diarySessionService.createDiarySession(user, response);
+
+//      질의응답 관련 diary 테이블 값 생성 제거 (세션) 관련 로직 별도 서비스로 분리
+//        diaryRepository.deleteByUser(user);
+//        DiaryEntity diaryEntity = DiaryEntity.builder()
+//                .question(response)
+//                .user(user)
+//                .answerCount(1)
+//                .build();
+//        diaryRepository.save(diaryEntity);
 
         Map<String, Object> result = new HashMap<>();
         result.put("question", response);
@@ -135,7 +134,13 @@ public class DiaryService {
         List<String> chatHistories = List.of(); // TODO DB 스펙 나오면 조회해와야함
         String operationType = determineOperationType(request);
 
+        diarySessionService.addAnswer(user, request.getAnswerCount(), request.getAnswer());
+
         QuestionResDto.Value value = callAPI(operationType, request, user, chatHistories);
+
+        if (operationType.equals(QUESTION)) {
+            diarySessionService.addQuestion(user, request.getAnswerCount() + 1, ((QuestionValue) value).question());
+        }
 
         return ResponseDto.success(new QuestionResDto(operationType, value, request.getAnswerCount() + 1));
     }
@@ -156,14 +161,14 @@ public class DiaryService {
                     yield new QuestionValue(question);
                 }
                 case SUMMARY -> {
-                    List<String> summaries = internalAiClientService.summary(user.getImgDesc(), chatHistories);
-                    yield new SummaryValue(summaries.get(0), summaries.get(1), summaries.get(2));
+                    SummaryResponseModel summary = internalAiClientService.summary(user.getImgDesc(), chatHistories);
+                    yield SummaryValue.from(summary.getDiaries());
                 }
                 default -> throw new IllegalArgumentException("지원하지 않는 operationType: " + operationType);
             };
         } catch (Exception e) {
             log.error("질문 요청 중 오류 발생", e);
-            return null;
+            throw new IllegalStateException(e);
         }
     }
 }
