@@ -24,11 +24,11 @@ public class DiarySessionEntity {
     private UserEntity user;
 
     @Lob
-    @Column(name = "QUESTION")
+    @Column(name = "QUESTION", columnDefinition = "TEXT")
     private String question;
 
     @Lob
-    @Column(name = "ANSWER")
+    @Column(name = "ANSWER", columnDefinition = "TEXT")
     private String answer;
 
     @Column(name = "ANSWERCOUNT")
