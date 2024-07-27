@@ -5,17 +5,17 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ResponseDto {
+public class ResponseDto<T> {
     private String code;
     private String message;
-    private Object resData;
+    private T resData;
 
     public ResponseDto() {
         this.code = ResponseCode.SUCCESS;
         this.message = ResponseMessage.SUCCESS;
     }
 
-    public ResponseDto(Object resData) {
+    public ResponseDto(T resData) {
         this.code = ResponseCode.SUCCESS;
         this.message = ResponseMessage.SUCCESS;
         this.resData = resData;
@@ -28,20 +28,20 @@ public class ResponseDto {
         this.resData = null;  // resData는 null로 설정
     }
 
-    public static ResponseDto databaseError() {
-        return new ResponseDto(ResponseCode.DATABASE_ERROR, ResponseMessage.DATABASE_ERROR);
+    public static ResponseDto<Void> databaseError() {
+        return new ResponseDto<>(ResponseCode.DATABASE_ERROR, ResponseMessage.DATABASE_ERROR);
     }
 
 
-    public static ResponseDto success(Object resData) {
-        return new ResponseDto(resData);
+    public static <T> ResponseDto<T> success(T resData) {
+        return new ResponseDto<>(resData);
     }
 
-    public static ResponseDto success() {
+    public static ResponseDto<Void> success() {
         return success(null);
     }
 
-    public static ResponseDto error(String code, String message) {
-        return new ResponseDto(code, message);
+    public static ResponseDto<Void> error(String code, String message) {
+        return new ResponseDto<>(code, message);
     }
 }

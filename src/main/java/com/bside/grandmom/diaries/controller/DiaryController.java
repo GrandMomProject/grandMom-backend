@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/diary")
@@ -31,7 +32,7 @@ public class DiaryController {
             @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")
     })
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseDto> image(
+    public ResponseEntity<ResponseDto<Map<String, Object>>> image(
             @RequestPart("image") MultipartFile image,
             @RequestPart(name = "req", required = false) ImageReqDto req) throws IOException {
         return ResponseEntity.ok(diaryService.describeImage(image));
@@ -44,8 +45,8 @@ public class DiaryController {
             @ApiResponse(responseCode = "200", description = "질문 전송 성공"),
             @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
     @PostMapping("/question")
-    public ResponseEntity<ResponseDto> question(@RequestBody QuestionReqDto req) {
-        return null;
+    public ResponseEntity<ResponseDto<?>> question(@RequestBody QuestionReqDto req) {
+        return ResponseEntity.ok(diaryService.question(req));
     }
 
 }

@@ -22,8 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/reg")
-    public ResponseEntity<ResponseDto> reg(@RequestBody RegReqDto req) {
-
+    public ResponseEntity<ResponseDto<Void>> reg(@RequestBody RegReqDto req) {
         return ResponseEntity.ok(userService.memberReg(req));
     }
 }

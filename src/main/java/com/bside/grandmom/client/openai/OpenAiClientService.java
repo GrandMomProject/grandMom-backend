@@ -1,4 +1,4 @@
-package com.bside.grandmom.diaries.service;
+package com.bside.grandmom.client.openai;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;

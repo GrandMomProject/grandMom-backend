@@ -16,7 +16,7 @@ import java.util.Date;
 public class UserService {
     private final UserRepository userRepository;
 
-    public ResponseDto memberReg(RegReqDto req) {
+    public ResponseDto<Void> memberReg(RegReqDto req) {
         try {
             // UID 또는 DID가 중복된 사용자가 있는지 확인
             UserEntity existingUser = userRepository.findByDid(req.getDid());
@@ -49,7 +49,11 @@ public class UserService {
             log.error("Failed Join.. Server Error", error);
             return ResponseDto.error("999", "Failed Join.. Server Error");
         }
-
-
     }
+
+    public UserEntity getUser(String uid, String did) {
+        return userRepository.findByUidAndDid(uid, did)
+                .orElseThrow(() -> new IllegalArgumentException("User not found. uid=" + uid + ", did=" + did));
+    }
+
 }
