@@ -3,6 +3,7 @@ package com.bside.grandmom.diaries.controller;
 import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.diaries.dto.ImageReqDto;
 import com.bside.grandmom.diaries.dto.QuestionReqDto;
+import com.bside.grandmom.diaries.dto.QuestionResDto;
 import com.bside.grandmom.diaries.service.DiaryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,7 +46,7 @@ public class DiaryController {
             @ApiResponse(responseCode = "200", description = "질문 전송 성공"),
             @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
     @PostMapping("/question")
-    public ResponseEntity<ResponseDto<?>> question(@RequestBody QuestionReqDto req) {
+    public ResponseEntity<ResponseDto<QuestionResDto>> question(@RequestBody QuestionReqDto req) {
         return ResponseEntity.ok(diaryService.question(req));
     }
 

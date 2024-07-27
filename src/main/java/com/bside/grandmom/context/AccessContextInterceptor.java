@@ -15,7 +15,7 @@ public class AccessContextInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String uid = request.getHeader(UID_HEADER);
         String did = request.getHeader(DID_HEADER);
-        AccessContextHolder.setAudit(new AccessContext(uid, did));
+        AccessContextHolder.setAccess(new AccessContext(uid, did));
         return true;
     }
 

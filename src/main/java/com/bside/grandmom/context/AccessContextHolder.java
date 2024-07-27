@@ -8,12 +8,20 @@ import org.springframework.core.NamedThreadLocal;
 public class AccessContextHolder {
     private static final ThreadLocal<AccessContext> accessContext = new NamedThreadLocal<>("Access Context");
 
-    public static void setAudit(AccessContext access) {
+    public static void setAccess(AccessContext access) {
         accessContext.set(access);
     }
 
-    public static AccessContext getAccessContext() {
+    public static AccessContext getAccessContextNonRequired() {
         return accessContext.get();
+    }
+
+    public static AccessContext getAccessContext() {
+        AccessContext context = accessContext.get();
+        if (!context.isValid()) {
+            throw new IllegalStateException("uid or did 없음");
+        }
+        return context;
     }
 
     public static void clear() {

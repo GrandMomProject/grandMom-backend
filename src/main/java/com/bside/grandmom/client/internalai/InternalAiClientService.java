@@ -1,5 +1,8 @@
 package com.bside.grandmom.client.internalai;
 
+import com.bside.grandmom.client.internalai.dto.ChatHistoryRequestModel;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +18,8 @@ import static java.util.Map.entry;
 @Service
 @Slf4j
 public class InternalAiClientService {
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
     private final RestTemplate restTemplate;
     private final String host;
 
@@ -33,24 +38,28 @@ public class InternalAiClientService {
         return response.getBody();
     }
 
-    private static final String ADDITIONAL_INTERVIEW_FORMAT = """
-            
-            """;
-
-    public String additionalInterview(String imgDesc, List<String> chatHistories, String answer) {
+    public String additionalInterview(String imageDescription, List<String> chatHistories, String answer) throws Exception {
         Map<String, String> requestBody = Map.ofEntries(
-            entry("chatHistory", chatHistories.toString()),
+            entry("chatHistory", convertChatHistory(imageDescription, chatHistories)),
             entry("answer", answer)
         );
+
         ResponseEntity<String> response = restTemplate.postForEntity(host + "/additional-interview", requestBody, String.class);
         return response.getBody();
     }
 
-    public List<String> summary(String chatHistory) {
-//        Map<String, String> requestBody = Map.of("chatHistory", chatHistory);
-//        ResponseEntity<List<String>> response = restTemplate.postForEntity(host + "/summary", requestBody, List.class);
-//        return response.getBody();
-        return null;
+    public List<String> summary(String imageDescription, List<String> chatHistories) throws Exception {
+        Map<String, String> requestBody = Map.of("chatHistory", convertChatHistory(imageDescription, chatHistories));
+
+        ResponseEntity<String> response = restTemplate.postForEntity(host + "/additional-interview", requestBody, String.class);
+        return MAPPER.readValue(response.getBody(), new TypeReference<>() {
+        });
+    }
+
+    private String convertChatHistory(String imageDescription, List<?> chatHistories) throws Exception {
+        // TODO DB 조회된 대화이력을 요청 모델에 변환해야함
+        ChatHistoryRequestModel requestModel = new ChatHistoryRequestModel(imageDescription, List.of());
+        return MAPPER.writeValueAsString(requestModel);
     }
 
 }
