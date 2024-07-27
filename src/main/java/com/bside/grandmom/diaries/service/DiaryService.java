@@ -5,15 +5,20 @@ import com.bside.grandmom.client.openai.OpenAiClientService;
 import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.context.AccessContext;
 import com.bside.grandmom.context.AccessContextHolder;
+import com.bside.grandmom.diaries.domain.DiaryEntity;
 import com.bside.grandmom.diaries.dto.QuestionReqDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto.QuestionValue;
 import com.bside.grandmom.diaries.dto.QuestionResDto.SummaryValue;
 import com.bside.grandmom.diaries.prompt.Prompt;
+import com.bside.grandmom.diaries.repository.DiaryRepository;
 import com.bside.grandmom.users.domain.UserEntity;
+import com.bside.grandmom.users.repository.UserRepository;
 import com.bside.grandmom.users.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +26,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +44,8 @@ public class DiaryService {
     private final OpenAiClientService openAiClientService;
     private final InternalAiClientService internalAiClientService;
     private final UserService userService;
+    private final DiaryRepository diaryRepository;
+    private final UserRepository userRepository;
 
     @Value("${openai.vision-url}")
     private String visionUrl;
@@ -46,19 +53,55 @@ public class DiaryService {
     /**
      * OpenAi 이용한 이미지 분석 (vision)
      */
-    public ResponseDto<Map<String, Object>> describeImage(MultipartFile image) throws IOException {
+    @Transactional
+    public ResponseDto describeImage(MultipartFile image) throws IOException {
+        // header에서 did, uid 추출
+        AccessContext context = AccessContextHolder.getAccessContext();
+        UserEntity user = userService.getUser(context.uid(), context.did());
+
+        // (임시) user 테이블의 upd_dt를 기준으로 upd_dt가 오늘 날짜면 더이상 생성하지 못하도록 설정
+        /*ResponseDto<Void> checkDiaryCnt = getCreateDiaryCnt(user);
+        if (checkDiaryCnt != null) return checkDiaryCnt;*/
+
+
+        // 이미지 분석 및 저장
         String prompt = Prompt.DESCRIBE.getPrompt();
         String base64Image = encodeImage(image);
 
-        // requestBody 구성
         Map<String, Object> requestBody = openAiClientService.createVisionRequestBody(base64Image, prompt);
-
         Map<String, Object> describeText = openAiClientService.callOpenAiApi(visionUrl, requestBody);
-        String response = internalAiClientService.createFirstInterview(handleVisionApiResponse(describeText));
+        String imageDesc = handleVisionApiResponse(describeText);
+
+        user.updateImgDesc(imageDesc, new Date());
+
+        // 첫번째 질문 생성 및 저장
+        String response = internalAiClientService.createFirstInterview(imageDesc);
+        DiaryEntity diaryEntity = DiaryEntity.builder()
+                .question(response)
+                .user(user)
+                .build();
+        diaryRepository.save(diaryEntity);
 
         Map<String, Object> result = new HashMap<>();
         result.put("question", response);
         return ResponseDto.success(result);
+    }
+
+    private ResponseDto<Void> getCreateDiaryCnt(UserEntity user) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String todayStr = sdf.format(new Date());
+        String userUpdDtStr = sdf.format(user.getUpdDt());
+        try {
+            Date today = sdf.parse(todayStr);
+            Date userUpdDt = sdf.parse(userUpdDtStr);
+
+            if (userUpdDt.equals(today)) {
+                return ResponseDto.error("1", "일기 생성 횟수 초과");
+            }
+        } catch (ParseException e) {
+            return ResponseDto.error("999", "날짜 형식 변환 오류");
+        }
+        return null;
     }
 
     /**

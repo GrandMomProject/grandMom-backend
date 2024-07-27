@@ -39,7 +39,7 @@ public class UserEntity {
     private char agreementYn;
 
     @Lob
-    @Column(name = "IMG_DESC")
+    @Column(name = "IMG_DESC", columnDefinition = "TEXT")
     private String imgDesc;
 
     @Column(name = "REG_DT")
@@ -50,4 +50,9 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DiaryEntity> diaries = new ArrayList<>();
+
+    public void updateImgDesc(String imgDesc, Date updDt) {
+        this.imgDesc = imgDesc;
+        this.updDt = updDt;
+    }
 }
