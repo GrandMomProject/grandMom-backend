@@ -59,7 +59,7 @@ public class InternalAiClientService {
     private String convertChatHistory(String imageDescription, List<?> chatHistories) throws Exception {
         // TODO DB 조회된 대화이력을 요청 모델에 변환해야함
         ChatHistoryRequestModel requestModel = new ChatHistoryRequestModel(imageDescription, List.of());
-        return MAPPER.writeValueAsString(requestModel);
+        return MAPPER.writeValueAsString(Map.of("chatHistory", requestModel));
     }
 
 }
