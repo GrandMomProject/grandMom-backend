@@ -4,11 +4,15 @@ import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.diaries.dto.*;
 import com.bside.grandmom.diaries.service.DiaryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,18 +27,19 @@ import java.io.IOException;
 public class DiaryController {
     private final DiaryService diaryService;
 
-    @Operation(
-            summary = "이미지 전송 API", description = "사진을 전송합니다."
-    )
+    @Operation(summary = "이미지 전송 API", description = "사진을 전송합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "이미지 전송 성공"),
-            @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
-    @PostMapping("/image")
-    public ResponseEntity<ResponseDto> image(@RequestPart(name = "image") MultipartFile image,
-                                             @RequestPart(required = false, name = "req") ImageReqDto req) throws IOException {
-//        return diaryService.describeImage(image);
+            @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")
+    })
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResponseDto> image(
+            @RequestPart("image") MultipartFile image,
+            @RequestPart(name = "req", required = false) ImageReqDto req) throws IOException {
+
         try {
             Thread.sleep(3000); // 3000 milliseconds = 3 seconds
+            //        return diaryService.describeImage(image);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -53,9 +58,27 @@ public class DiaryController {
     @PostMapping("/question")
     public ResponseEntity<ResponseDto> question(@RequestBody QuestionReqDto req) throws IOException {
         int ansCnt = req.getAnswerCount() + 1;
-        QuestionResDto resDto = new QuestionResDto("sampleID1234", "질문" + ansCnt, "QUESTION");
+        QuestionResDto resDto = new QuestionResDto();
+
+        /*resDto.setAnswerCount(ansCnt);
+        resDto.setType("QUESTION");
+        QuestionResDto.QuestionValue value = new QuestionResDto.QuestionValue();
+        value.setQuestion("날씨는 어땠나요?");
+        resDto.setValue(value);*/
+
+        QuestionResDto.SummaryValue value = new QuestionResDto.SummaryValue();
+        value.setSummary1("일기 버전1");
+        value.setSummary2("일기 버전2");
+        value.setSummary3("일기 버전3");
+        resDto.setValue(value);
+        resDto.setAnswerCount(1);
+        resDto.setType("SUMMARY");
         return ResponseDto.success(resDto);
     }
+
+
+
+
 
     @Operation(
             summary = "일기 생성 API", description = "업로드한 사진에 대한 주고받은 대화를 통해 일기를 생성합니다."
