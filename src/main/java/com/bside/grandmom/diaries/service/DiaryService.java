@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,9 @@ public class DiaryService {
             String response = ncpClientService.createFirstInterview(handleVisionApiResponse(describeText));
 //            String response = ncpClientService.createFirstInterview("사진에는 두 사람이 공중에서 점프하고 있는 모습이 담겨 있습니다. 배경에는 아름다운 호숫가 풍경과 산들이 보이며, 주위에는 노란 잎사귀들이 떨어져 있습니다. 하늘은 푸르고 맑아 분위기가 화창합니다. 두 사람은 밝은 표정을 지으며 즐거운 순간을 공유하고 있는 것 같습니다.");
 
-            return ResponseDto.success(response);
+            Map<String, Object> result = new HashMap<>();
+            result.put("question", response);
+            return ResponseDto.success(result);
         } catch (Error e) {
             throw e;
         }
