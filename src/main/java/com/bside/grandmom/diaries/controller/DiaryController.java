@@ -37,16 +37,12 @@ public class DiaryController {
             @RequestPart("image") MultipartFile image,
             @RequestPart(name = "req", required = false) ImageReqDto req) throws IOException {
 
-        try {
-            Thread.sleep(3000); // 3000 milliseconds = 3 seconds
-            //        return diaryService.describeImage(image);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        ImageResDto res = new ImageResDto();
+        //            Thread.sleep(3000); // 3000 milliseconds = 3 seconds
+        return diaryService.describeImage(image);
+        /*ImageResDto res = new ImageResDto();
         res.setDiaryID("sampleID1234");
         res.setQuestion("이 사진은 어느 해변에서 찍으셨나요? 그리고 그곳에서 어떤 활동을 하셨는지 궁금합니다.");
-        return ResponseDto.success(res);
+        return ResponseDto.success(res);*/
     }
 
     @Operation(

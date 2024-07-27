@@ -19,6 +19,7 @@ import java.util.Map;
 public class DiaryService {
 
     private final OpenAiClientService openAiClientService;
+    private final NcpClientService ncpClientService;
 
     @Value("${openai.vision-url}")
     private String VISIONURL;
@@ -34,9 +35,11 @@ public class DiaryService {
         Map<String, Object> requestBody = openAiClientService.createVisionRequestBody(base64Image, prompt);
 
         try {
-            Map<String, Object> response = openAiClientService.callOpenAiApi(VISIONURL, requestBody);
+            Map<String, Object> describeText = openAiClientService.callOpenAiApi(VISIONURL, requestBody);
+            String response = ncpClientService.createFirstInterview(handleVisionApiResponse(describeText));
+//            String response = ncpClientService.createFirstInterview("사진에는 두 사람이 공중에서 점프하고 있는 모습이 담겨 있습니다. 배경에는 아름다운 호숫가 풍경과 산들이 보이며, 주위에는 노란 잎사귀들이 떨어져 있습니다. 하늘은 푸르고 맑아 분위기가 화창합니다. 두 사람은 밝은 표정을 지으며 즐거운 순간을 공유하고 있는 것 같습니다.");
 
-            return handleVisionApiResponse(response);
+            return ResponseDto.success(response);
         } catch (Error e) {
             throw e;
         }
@@ -45,7 +48,7 @@ public class DiaryService {
     /**
      * vision api response 값 extract
      * */
-    private ResponseEntity<ResponseDto> handleVisionApiResponse(Map<String, Object> response) {
+    private String handleVisionApiResponse(Map<String, Object> response) {
         // 응답 반환
         if (response != null && response.containsKey("choices")) {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -53,9 +56,9 @@ public class DiaryService {
             Map<String, Object> choice = choices.get(0);
             Map<String, Object> message = (Map<String, Object>) choice.get("message");
             String content = (String) message.get("content");
-            return ResponseDto.success(content);
+            return content;
         } else {
-            return ResponseDto.error("500", "error");
+            return null;
         }
     }
 
