@@ -51,7 +51,7 @@ public class InternalAiClientService {
     public List<String> summary(String imageDescription, List<String> chatHistories) throws Exception {
         Map<String, String> requestBody = Map.of("chatHistory", convertChatHistory(imageDescription, chatHistories));
 
-        ResponseEntity<String> response = restTemplate.postForEntity(host + "/additional-interview", requestBody, String.class);
+        ResponseEntity<String> response = restTemplate.postForEntity(host + "/summary", requestBody, String.class);
         return MAPPER.readValue(response.getBody(), new TypeReference<>() {
         });
     }

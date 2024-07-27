@@ -76,6 +76,7 @@ public class DiaryService {
 
         // 첫번째 질문 생성 및 저장
         String response = internalAiClientService.createFirstInterview(imageDesc);
+        diaryRepository.deleteByUser(user);
         DiaryEntity diaryEntity = DiaryEntity.builder()
                 .question(response)
                 .user(user)
