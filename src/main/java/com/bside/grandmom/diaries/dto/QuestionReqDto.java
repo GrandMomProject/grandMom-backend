@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuestionReqDto {
-    private String diaryID;
     private String answer;
     private int answerCount;
 }
