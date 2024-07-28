@@ -56,8 +56,8 @@ public class DiaryService {
         UserEntity user = userService.getUser(context.uid(), context.did());
 
         // (임시) user 테이블의 upd_dt를 기준으로 upd_dt가 오늘 날짜면 더이상 생성하지 못하도록 설정
-        /*ResponseDto<Void> checkDiaryCnt = getCreateDiaryCnt(user);
-        if (checkDiaryCnt != null) return checkDiaryCnt;*/
+        ResponseDto<Void> checkDiaryCnt = getCreateDiaryCnt(user);
+        if (checkDiaryCnt != null) return checkDiaryCnt;
 
 
         // 이미지 분석 및 저장
