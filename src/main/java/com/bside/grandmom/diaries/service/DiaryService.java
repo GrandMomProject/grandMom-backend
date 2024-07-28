@@ -67,6 +67,7 @@ public class DiaryService {
         Map<String, Object> requestBody = openAiClientService.createVisionRequestBody(base64Image, prompt);
         Map<String, Object> describeText = openAiClientService.callOpenAiApi(visionUrl, requestBody);
         String imageDesc = handleVisionApiResponse(describeText);
+        log.info("이미지 설명: {}", imageDesc);
 
         user.updateImgDesc(imageDesc, new Date());
 
@@ -133,6 +134,7 @@ public class DiaryService {
         AccessContext context = AccessContextHolder.getAccessContext();
         UserEntity user = userService.getUser(context.uid(), context.did());
         diarySessionService.addAnswer(user, request.getAnswerCount(), request.getAnswer());
+        log.info("대답:{}", request.getAnswer());
 
         String operationType = determineOperationType(request);
 
