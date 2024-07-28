@@ -98,7 +98,7 @@ public class DiaryService {
             Date userUpdDt = sdf.parse(userUpdDtStr);
 
             if (userUpdDt.equals(today)) {
-                return ResponseDto.error("1", "일기 생성 횟수 초과");
+                return ResponseDto.error("1", "과금 문제로 인해 일 1회로 횟수를 제한하고 있습니다. 이용해주셔서 감사합니다.");
             }
         } catch (ParseException e) {
             return ResponseDto.error("999", "날짜 형식 변환 오류");
