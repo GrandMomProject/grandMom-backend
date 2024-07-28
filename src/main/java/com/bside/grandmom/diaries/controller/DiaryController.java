@@ -26,6 +26,8 @@ import java.util.Map;
 @Slf4j
 public class DiaryController {
     private final DiaryService diaryService;
+    private final int RESTRICTCNT = 100;
+    private int callCnt = 0;
 
     @Operation(summary = "이미지 전송 API", description = "사진을 전송합니다.")
     @ApiResponses(value = {
@@ -33,9 +35,13 @@ public class DiaryController {
             @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")
     })
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResponseDto<Map<String, Object>>> image(
+    public ResponseEntity<ResponseDto> image(
             @RequestPart("image") MultipartFile image,
             @RequestPart(name = "req", required = false) ImageReqDto req) throws IOException {
+        if (callCnt >= RESTRICTCNT) {
+            return ResponseEntity.ok(ResponseDto.error("1", "과금 문제로 인해 일 이용 횟수를 제한하고 있습니다. 이용해주셔서 감사합니다."));
+        }
+        callCnt++;
         return ResponseEntity.ok(diaryService.describeImage(image));
     }
 
