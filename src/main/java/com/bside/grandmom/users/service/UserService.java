@@ -19,7 +19,8 @@ public class UserService {
     public ResponseDto<Void> memberReg(RegReqDto req) {
         try {
             // UID 또는 DID가 중복된 사용자가 있는지 확인
-            UserEntity existingUser = userRepository.findByDid(req.getDid());
+//            UserEntity existingUser = userRepository.findByDid(req.getDid());
+            UserEntity existingUser = userRepository.findByDid(req.getUid());
             Date today = new Date();
             if (existingUser != null) {
                 // 기존 사용자 업데이트 (빌더 패턴 사용)
