@@ -17,8 +17,8 @@ import java.util.List;
 @Entity
 @Builder(toBuilder = true)
 @Table(name = "USER", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "UID"),
-        @UniqueConstraint(columnNames = "DID")
+        @UniqueConstraint(columnNames = "UID")
+//        @UniqueConstraint(columnNames = "DID")
 })
 public class UserEntity {
     @Id
