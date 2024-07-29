@@ -92,6 +92,7 @@ public class DiaryService {
     private ResponseDto<Void> getCreateDiaryCnt(UserEntity user) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String todayStr = sdf.format(new Date());
+//        if (user.getUpdDt() == null) return null;
         String userUpdDtStr = sdf.format(user.getUpdDt());
         try {
             Date today = sdf.parse(todayStr);
