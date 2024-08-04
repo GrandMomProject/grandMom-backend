@@ -1,5 +1,6 @@
 package com.bside.grandmom.users.service;
 
+import com.bside.grandmom.client.oauth.KakaoClientService;
 import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.users.domain.UserEntity;
 import com.bside.grandmom.users.dto.RegReqDto;
@@ -9,12 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
     private final UserRepository userRepository;
+    private final KakaoClientService kakaoClientService;
 
     public ResponseDto<Void> memberReg(RegReqDto req) {
         try {
@@ -57,4 +60,15 @@ public class UserService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found. uid=" + uid + ", did=" + did));
     }
 
+    public String kakaoLogin() {
+        return kakaoClientService.authorize();
+    }
+
+    public Map getKakaoProfile() {
+        return kakaoClientService.getProfile();
+    }
+
+    public Map getKakaoToken(String code) {
+        return kakaoClientService.getToken(code);
+    }
 }

@@ -48,3 +48,9 @@ internal-ai:
 # Add JVM arguments
 jvm:
   args: "--add-opens java.base/sun.security.ssl=ALL-UNNAMED"
+
+oauth:
+  kakao:
+    client_id: ${oauth.kakao.client_id}
+    redirect_uri: ${oauth.kakao.redirect_uri}
+    admin_key: ${oauth.kakao.admin_key}
