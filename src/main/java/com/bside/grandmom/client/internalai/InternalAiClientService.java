@@ -2,7 +2,7 @@ package com.bside.grandmom.client.internalai;
 
 import com.bside.grandmom.client.internalai.dto.ChatHistoryRequestModel;
 import com.bside.grandmom.client.internalai.dto.SummaryResponseModel;
-import com.bside.grandmom.diaries.domain.DiarySessionEntity;
+import com.bside.grandmom.diaries.domain.QuestionEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +40,7 @@ public class InternalAiClientService {
         return response.getBody();
     }
 
-    public String additionalInterview(String imageDescription, List<DiarySessionEntity> chatHistories, String answer) throws Exception {
+    public String additionalInterview(String imageDescription, List<QuestionEntity> chatHistories, String answer) throws Exception {
         Map<String, String> requestBody = Map.ofEntries(
             entry("chatHistory", convertChatHistory(imageDescription, chatHistories)),
             entry("answer", answer)
@@ -50,16 +50,16 @@ public class InternalAiClientService {
         return response.getBody();
     }
 
-    public SummaryResponseModel summary(String imageDescription, List<DiarySessionEntity> chatHistories) throws Exception {
+    public SummaryResponseModel summary(String imageDescription, List<QuestionEntity> chatHistories) throws Exception {
         Map<String, String> requestBody = Map.of("chatHistory", convertChatHistory(imageDescription, chatHistories));
 
         ResponseEntity<String> response = restTemplate.postForEntity(host + "/summary", requestBody, String.class);
         return  MAPPER.readValue(response.getBody(), SummaryResponseModel.class);
     }
 
-    private String convertChatHistory(String imageDescription, List<DiarySessionEntity> chatHistories) throws Exception {
+    private String convertChatHistory(String imageDescription, List<QuestionEntity> chatHistories) throws Exception {
         List<ChatHistoryRequestModel.ChatHistoryModel> chatHistoryModelModels = chatHistories.stream()
-                .sorted(Comparator.comparing(DiarySessionEntity::getAnswerCount))
+                .sorted(Comparator.comparing(QuestionEntity::getAnsCnt))
                 .map(e -> new ChatHistoryRequestModel.ChatHistoryModel(e.getQuestion(), e.getAnswer()))
                 .toList();
 

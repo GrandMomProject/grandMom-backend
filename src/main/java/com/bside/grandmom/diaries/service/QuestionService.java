@@ -1,7 +1,7 @@
 package com.bside.grandmom.diaries.service;
 
-import com.bside.grandmom.diaries.domain.DiarySessionEntity;
-import com.bside.grandmom.diaries.repository.DiarySessionRepository;
+import com.bside.grandmom.diaries.domain.QuestionEntity;
+import com.bside.grandmom.diaries.repository.QuestionRepository;
 import com.bside.grandmom.users.domain.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,8 +12,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class DiarySessionService {
-    private final DiarySessionRepository diarySessionRepository;
+public class QuestionService {
+    private final QuestionRepository questionRepository;
 
     public void createDiarySession(UserEntity user, String question) {
         clearSession(user);
@@ -21,26 +21,26 @@ public class DiarySessionService {
     }
 
     private void clearSession(UserEntity user) {
-        diarySessionRepository.deleteByUser(user);
+        questionRepository.deleteByUser(user);
     }
 
     public void addAnswer(UserEntity user, int answerCount, String answer) {
-        DiarySessionEntity sessionRecord = diarySessionRepository.findByUserAndAnswerCount(user, answerCount)
+        QuestionEntity sessionRecord = questionRepository.findByUserAndAnsCnt(user, answerCount)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 다이어리 세션을 찾을 수 없음."));
 
         sessionRecord.changeAnswer(answer);
     }
 
     public void addQuestion(UserEntity user, int answerCount, String question) {
-        diarySessionRepository.save(DiarySessionEntity.builder()
+        questionRepository.save(QuestionEntity.builder()
                 .user(user)
                 .question(question)
-                .answerCount(answerCount)
+                .ansCnt(answerCount)
                 .build());
     }
 
-    public List<DiarySessionEntity> getChatHistories(UserEntity user) {
-        return diarySessionRepository.findAllByUser(user);
+    public List<QuestionEntity> getChatHistories(UserEntity user) {
+        return questionRepository.findAllByUser(user);
     }
 
 }

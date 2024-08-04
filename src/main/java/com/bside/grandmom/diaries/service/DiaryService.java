@@ -6,7 +6,7 @@ import com.bside.grandmom.client.openai.OpenAiClientService;
 import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.context.AccessContext;
 import com.bside.grandmom.context.AccessContextHolder;
-import com.bside.grandmom.diaries.domain.DiarySessionEntity;
+import com.bside.grandmom.diaries.domain.QuestionEntity;
 import com.bside.grandmom.diaries.dto.QuestionReqDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto.QuestionValue;
@@ -41,7 +41,7 @@ public class DiaryService {
     private final OpenAiClientService openAiClientService;
     private final InternalAiClientService internalAiClientService;
     private final UserService userService;
-    private final DiarySessionService diarySessionService;
+    private final QuestionService questionService;
 
     @Value("${openai.vision-url}")
     private String visionUrl;
@@ -73,7 +73,7 @@ public class DiaryService {
 
         // 첫번째 질문 생성 및 저장
         String response = internalAiClientService.createFirstInterview(imageDesc);
-        diarySessionService.createDiarySession(user, response);
+        questionService.createDiarySession(user, response);
 
 //      질의응답 관련 diary 테이블 값 생성 제거 (세션) 관련 로직 별도 서비스로 분리
 //        diaryRepository.deleteByUser(user);
@@ -134,16 +134,16 @@ public class DiaryService {
     public ResponseDto<QuestionResDto> question(QuestionReqDto request) {
         AccessContext context = AccessContextHolder.getAccessContext();
         UserEntity user = userService.getUser(context.uid(), context.did());
-        diarySessionService.addAnswer(user, request.getAnswerCount(), request.getAnswer());
+        questionService.addAnswer(user, request.getAnswerCount(), request.getAnswer());
         log.info("대답:{}", request.getAnswer());
 
         String operationType = determineOperationType(request);
 
-        List<DiarySessionEntity> chatHistories = diarySessionService.getChatHistories(user);
+        List<QuestionEntity> chatHistories = questionService.getChatHistories(user);
         QuestionResDto.Value value = callAPI(operationType, request, user, chatHistories);
 
         if (operationType.equals(QUESTION)) {
-            diarySessionService.addQuestion(user, request.getAnswerCount() + 1, ((QuestionValue) value).question());
+            questionService.addQuestion(user, request.getAnswerCount() + 1, ((QuestionValue) value).question());
         }
 
         return ResponseDto.success(new QuestionResDto(operationType, value, request.getAnswerCount() + 1));
@@ -157,7 +157,7 @@ public class DiaryService {
         }
     }
 
-    private QuestionResDto.Value callAPI(String operationType, QuestionReqDto request, UserEntity user, List<DiarySessionEntity> chatHistories) {
+    private QuestionResDto.Value callAPI(String operationType, QuestionReqDto request, UserEntity user, List<QuestionEntity> chatHistories) {
         try {
             return switch (operationType) {
                 case QUESTION -> {

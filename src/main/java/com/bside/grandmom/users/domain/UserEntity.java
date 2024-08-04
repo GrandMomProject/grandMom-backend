@@ -1,6 +1,7 @@
 package com.bside.grandmom.users.domain;
 
-import com.bside.grandmom.diaries.domain.DiarySessionEntity;
+import com.bside.grandmom.diaries.domain.DiaryInfoEntity;
+import com.bside.grandmom.diaries.domain.QuestionEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,14 +27,32 @@ public class UserEntity {
     @Column(name = "USER_NO")
     private Long userNo;
 
-    @Column(name = "UID", nullable = false)
+    @Column(name = "DID")
+    private String did;
+
+    @Column(name = "UID")
     private String uid;
 
-    @Column(name = "DID", nullable = false)
-    private String did;
+    @Column(name = "LOGIN_TYPE", nullable = false)
+    private String loginType = "GENERAL";
+
+    @Column(name = "OAUTH_ID")
+    private String oauthId;
+
+    @Column(name = "EMAIL")
+    private String email;
+
+    @Column(name = "NICKNAME")
+    private String nickname;
+
+    @Column(name = "PROFILE_IMG")
+    private String profileImg;
 
     @Column(name = "GENDER", nullable = false)
     private char gender;
+
+    @Column(name = "USE_CNT")
+    private int useCnt;
 
     @Column(name = "AGREEMENT_YN")
     private char agreementYn;
@@ -45,11 +64,17 @@ public class UserEntity {
     @Column(name = "REG_DT")
     private Date regDt;
 
+    @Column(name = "LAST_DT")
+    private Date lastDt;
+
     @Column(name = "UPD_DT")
     private Date updDt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DiarySessionEntity> diaries = new ArrayList<>();
+    private List<QuestionEntity> questions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DiaryInfoEntity> infos = new ArrayList<>();
 
     public void updateImgDesc(String imgDesc, Date updDt) {
         this.imgDesc = imgDesc;

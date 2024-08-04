@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Builder
-@Table(name = "Diary")
-public class DiarySessionEntity {
+@Table(name = "QUESTION")
+public class QuestionEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "DIARY_NO")
-    private Long diaryNo;
+    @Column(name = "NO")
+    private Long no;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_NO", nullable = false)
@@ -31,8 +31,8 @@ public class DiarySessionEntity {
     @Column(name = "ANSWER", columnDefinition = "TEXT")
     private String answer;
 
-    @Column(name = "ANSWERCOUNT")
-    private Integer answerCount;
+    @Column(name = "ANS_CNT")
+    private Integer ansCnt;
 
     public void changeAnswer(String answer) {
         this.answer = answer;
