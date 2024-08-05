@@ -3,6 +3,8 @@ package com.bside.grandmom.client.oauth;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -37,10 +39,12 @@ public class KakaoClientService {
         return request;
     }
 
-    public Map getProfile() {
-        headers.set("Authorization", "KakaoAK " + adminKey);
-        headers.set("Content-Type", "application/x-www-form-urlencoded");
-        return null;
+    public Map getProfile(String accessToken) {
+        headers.set("Authorization", "Bearer " + accessToken);
+        // HttpEntity 객체에 헤더만 포함
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        ResponseEntity<Map> responseEntity = restTemplate.exchange(API_URL + "/v2/user/me", HttpMethod.GET, requestEntity, Map.class);
+        return responseEntity.getBody();
     }
 
     public Map getToken(String code) {

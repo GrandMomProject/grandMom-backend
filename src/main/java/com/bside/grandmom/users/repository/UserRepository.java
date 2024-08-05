@@ -11,4 +11,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     UserEntity findByDid(String did);
 
     Optional<UserEntity> findByUidAndDid(String uid, String did);
+
+    UserEntity findByOauthId(String id);
 }

@@ -83,11 +83,30 @@ public class UserService {
         return kakaoClientService.authorize();
     }
 
-    public Map getKakaoProfile() {
-        return kakaoClientService.getProfile();
+    public Map getKakaoProfile(String accessToken) {
+        return kakaoClientService.getProfile(accessToken);
     }
 
     public Map getKakaoToken(String code) {
         return kakaoClientService.getToken(code);
+    }
+
+    public long saveUser(Map result) {
+        Map properties = (Map) result.get("properties");
+        Map kakaoAcounts = (Map) result.get("kakao_account");
+        UserEntity user = UserEntity.builder()
+                .oauthId(result.get("id").toString())
+                .nickname(properties.get("nickname").toString())
+                .profileImg(properties.get("thumbnail_image").toString())
+                .email(kakaoAcounts.get("email").toString())
+                .loginType("KAKAO")
+                .build();
+        // UserEntity 저장 및 저장된 엔티티 반환
+        UserEntity savedUser = userRepository.save(user);
+        return savedUser.getUserNo();
+    }
+
+    public UserEntity checkUser(String id) {
+        return userRepository.findByOauthId(id);
     }
 }

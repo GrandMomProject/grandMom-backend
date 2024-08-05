@@ -1,6 +1,8 @@
 package com.bside.grandmom.users.controller;
 
 import com.bside.grandmom.common.ResponseDto;
+import com.bside.grandmom.config.JwtProvider;
+import com.bside.grandmom.users.domain.UserEntity;
 import com.bside.grandmom.users.domain.UserEntity;
 import com.bside.grandmom.users.dto.GetUserInfoReqDto;
 import com.bside.grandmom.users.dto.RegReqDto;
@@ -11,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.*;
@@ -41,14 +44,26 @@ public class UserController {
         System.out.println("accessToken:" + accessToken);
 
         // 유저 정보 가져오기
-        Map result = userService.getKakaoProfile();
-        // 유저 정보 저장
+        Map result = userService.getKakaoProfile(accessToken.get("access_token").toString());
+        System.out.println("result===" + result);
+
+        // 유저 정보 db에 있는지 확인
+        UserEntity chkUser = userService.checkUser(result.get("id").toString());
+        long userNo;
+        if(chkUser == null || chkUser.getUserNo() == null){
+            // 유저 정보 저장
+            userNo = userService.saveUser(result);
+        } else {
+            userNo = chkUser.getUserNo();
+        }
 
         // 토큰 생성
+        JwtProvider jwtProvider = new JwtProvider();
+        String jwt = jwtProvider.createJwt(userNo);
 
         // 토큰 responose header에 넣어서 redirect 해주기
-        response.addHeader("Bearer", code);
-        response.sendRedirect("/");
+        response.addHeader("Authorization", "Bearer " + jwt);
+        response.sendRedirect("http://localhost:3000/");
     }
 
     @PostMapping("/reg")
