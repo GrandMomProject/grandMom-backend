@@ -5,10 +5,17 @@ import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.users.domain.UserEntity;
 import com.bside.grandmom.users.dto.RegReqDto;
 import com.bside.grandmom.users.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -56,8 +63,20 @@ public class UserService {
     }
 
     public UserEntity getUser(String uid, String did) {
-        return userRepository.findByUidAndDid(uid, did)
+        UserEntity user = userRepository.findByUidAndDid(uid, did)
                 .orElseThrow(() -> new IllegalArgumentException("User not found. uid=" + uid + ", did=" + did));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String todayStr = sdf.format(new Date());
+
+        String userUpdDtStr = sdf.format(user.getUpdDt());
+        try {
+            Date today = sdf.parse(todayStr);
+            Date userUpdDt = sdf.parse(userUpdDtStr);
+            if (!userUpdDt.equals(today)) user.resetUseCnt();
+            return user;
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     public String kakaoLogin() {

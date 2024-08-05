@@ -48,14 +48,14 @@ public class UserEntity {
     @Column(name = "PROFILE_IMG")
     private String profileImg;
 
-    @Column(name = "GENDER", nullable = false)
+    @Column(name = "GENDER")
     private char gender;
 
     @Column(name = "USE_CNT")
-    private int useCnt;
+    private int useCnt = 0;
 
-    @Column(name = "AGREEMENT_YN")
-    private char agreementYn;
+    @Column(name = "AGREEMENT_YN", nullable = false)
+    private char agreementYn = 'Y';
 
     @Lob
     @Column(name = "IMG_DESC", columnDefinition = "TEXT")
@@ -79,5 +79,13 @@ public class UserEntity {
     public void updateImgDesc(String imgDesc, Date updDt) {
         this.imgDesc = imgDesc;
         this.updDt = updDt;
+    }
+
+    public void increaseUseCnt(){
+        this.useCnt++;
+    }
+
+    public void resetUseCnt(){
+        this.useCnt = 0;
     }
 }

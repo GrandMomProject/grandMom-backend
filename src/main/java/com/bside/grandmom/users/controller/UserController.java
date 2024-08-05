@@ -1,14 +1,18 @@
 package com.bside.grandmom.users.controller;
 
 import com.bside.grandmom.common.ResponseDto;
+import com.bside.grandmom.users.domain.UserEntity;
+import com.bside.grandmom.users.dto.GetUserInfoReqDto;
 import com.bside.grandmom.users.dto.RegReqDto;
 import com.bside.grandmom.users.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -51,4 +55,12 @@ public class UserController {
     public ResponseEntity<ResponseDto<Void>> reg(@RequestBody RegReqDto req) {
         return ResponseEntity.ok(userService.memberReg(req));
     }
+
+    @GetMapping("/")
+    public ResponseEntity<ResponseDto<?>> getUserInfo(HttpServletRequest request, @RequestBody GetUserInfoReqDto req) {
+        String token = request.getHeader("Authorization");
+        UserEntity user = userService.getUser(req.getUid(), req.getDid());
+        return ResponseEntity.ok(ResponseDto.success(user));
+    }
+
 }

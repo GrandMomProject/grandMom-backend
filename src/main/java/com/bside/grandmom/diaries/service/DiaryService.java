@@ -70,7 +70,7 @@ public class DiaryService {
         log.info("이미지 설명: {}", imageDesc);
 
         user.updateImgDesc(imageDesc, new Date());
-
+        user.increaseUseCnt();
         // 첫번째 질문 생성 및 저장
         String response = internalAiClientService.createFirstInterview(imageDesc);
         questionService.createDiarySession(user, response);
@@ -90,16 +90,35 @@ public class DiaryService {
     }
 
     private ResponseDto<Void> getCreateDiaryCnt(UserEntity user) {
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        String todayStr = sdf.format(new Date());
+//        if (user.getUpdDt() == null) return null;
+//        String userUpdDtStr = sdf.format(user.getUpdDt());
+//        try {
+//            Date today = sdf.parse(todayStr);
+//            Date userUpdDt = sdf.parse(userUpdDtStr);
+//
+//            if (userUpdDt.equals(today)) {
+//                return ResponseDto.error("1", "과금 문제로 인해 일 1회로 횟수를 제한하고 있습니다. 이용해주셔서 감사합니다.");
+//            }
+//        } catch (ParseException e) {
+//            return ResponseDto.error("999", "날짜 형식 변환 오류");
+//        }
+//        return null;
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String todayStr = sdf.format(new Date());
         if (user.getUpdDt() == null) return null;
         String userUpdDtStr = sdf.format(user.getUpdDt());
+        int useCnt = user.getUseCnt();
         try {
             Date today = sdf.parse(todayStr);
             Date userUpdDt = sdf.parse(userUpdDtStr);
-
-            if (userUpdDt.equals(today)) {
-                return ResponseDto.error("1", "과금 문제로 인해 일 1회로 횟수를 제한하고 있습니다. 이용해주셔서 감사합니다.");
+            if (userUpdDt.equals(today) && useCnt >= 3) {
+                return ResponseDto.error("1", "과금 문제로 인해 일 3회로 횟수를 제한하고 있습니다. 이용해주셔서 감사합니다.");
+            }else if(!userUpdDt.equals(today)){
+                user.resetUseCnt();
+                return null;
             }
         } catch (ParseException e) {
             return ResponseDto.error("999", "날짜 형식 변환 오류");
@@ -174,5 +193,9 @@ public class DiaryService {
             log.error("질문 요청 중 오류 발생", e);
             throw new IllegalStateException(e);
         }
+    }
+
+    private boolean checkUseCount(){
+        return true;
     }
 }
