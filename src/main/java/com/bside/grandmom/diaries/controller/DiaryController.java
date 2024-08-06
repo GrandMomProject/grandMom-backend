@@ -2,6 +2,7 @@ package com.bside.grandmom.diaries.controller;
 
 import com.bside.grandmom.common.ResponseDto;
 import com.bside.grandmom.config.JwtProvider;
+import com.bside.grandmom.diaries.dto.DiaryResDto;
 import com.bside.grandmom.diaries.dto.ImageReqDto;
 import com.bside.grandmom.diaries.dto.QuestionReqDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto;
@@ -17,8 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequestMapping("/diary")
@@ -59,6 +59,18 @@ public class DiaryController {
     public ResponseEntity<ResponseDto<QuestionResDto>> question(@RequestBody QuestionReqDto req) throws Exception {
         long userNo = jwtProvider.getUserNo();
         return ResponseEntity.ok(diaryService.question(req, userNo));
+    }
+
+    @Operation(
+            summary = "다이어리 목록 조회", description = "유저가 가진 목록 및 데이터 조회"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "질문 전송 성공"),
+            @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
+    @GetMapping("/list")
+    public ResponseEntity<ResponseDto<List<DiaryResDto>>> getDiaryList() throws Exception {
+        long userNo = jwtProvider.getUserNo();
+        return ResponseEntity.ok(diaryService.getDiaryList(userNo));
     }
 
 }

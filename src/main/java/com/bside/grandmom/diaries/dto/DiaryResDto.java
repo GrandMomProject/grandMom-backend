@@ -1,18 +1,18 @@
 package com.bside.grandmom.diaries.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class DiaryResDto {
-    private String diaryID;
-    private String summary1;
-    private String summary2;
-    private String summary3;
-    private String voiceURL1;
-    private String voiceURL2;
-    private String voiceURL3;
+    private Long detailNo;
+    private String v1;
+    private String v2;
+    private String v3;
+    private String img;
 }

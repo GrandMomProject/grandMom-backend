@@ -4,11 +4,10 @@ import com.bside.grandmom.client.internalai.InternalAiClientService;
 import com.bside.grandmom.client.internalai.dto.SummaryResponseModel;
 import com.bside.grandmom.client.openai.OpenAiClientService;
 import com.bside.grandmom.common.ResponseDto;
-import com.bside.grandmom.context.AccessContext;
-import com.bside.grandmom.context.AccessContextHolder;
 import com.bside.grandmom.diaries.domain.DiaryDetailEntity;
 import com.bside.grandmom.diaries.domain.DiaryInfoEntity;
 import com.bside.grandmom.diaries.domain.QuestionEntity;
+import com.bside.grandmom.diaries.dto.DiaryResDto;
 import com.bside.grandmom.diaries.dto.QuestionReqDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto.QuestionValue;
@@ -103,8 +102,8 @@ public class DiaryService {
 
     private String settingImages(MultipartFile image, Long userNo) throws IOException {
 //        Map<String, String> result = new HashMap<>();
-//        String imagePath = "/root/grandmom/grandmom-image/";
-        String imagePath = "C:\\Users\\HPT\\grandMom\\grandmom-image\\";
+        String imagePath = "/root/grandmom/grandmom-image/";
+//        String imagePath = "C:\\Users\\HPT\\grandMom\\grandmom-image\\";
         File imageDirectory = new File(imagePath);
 
         // 디렉토리가 없으면 생성
@@ -293,5 +292,9 @@ public class DiaryService {
 
     private boolean checkUseCount() {
         return true;
+    }
+
+    public ResponseDto<List<DiaryResDto>> getDiaryList(long userNo){
+        return ResponseDto.success(diaryDetailService.findAllWithImgByUserNo(userNo));
     }
 }
