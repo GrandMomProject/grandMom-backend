@@ -1,6 +1,7 @@
 package com.bside.grandmom.diaries.controller;
 
 import com.bside.grandmom.common.ResponseDto;
+import com.bside.grandmom.config.JwtProvider;
 import com.bside.grandmom.diaries.dto.ImageReqDto;
 import com.bside.grandmom.diaries.dto.QuestionReqDto;
 import com.bside.grandmom.diaries.dto.QuestionResDto;
@@ -26,6 +27,8 @@ import java.util.Map;
 @Slf4j
 public class DiaryController {
     private final DiaryService diaryService;
+    private final JwtProvider jwtProvider;
+
     private final int RESTRICTCNT = 100;
     private int callCnt = 0;
 
@@ -37,12 +40,13 @@ public class DiaryController {
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ResponseDto> image(
             @RequestPart("image") MultipartFile image,
-            @RequestPart(name = "req", required = false) ImageReqDto req) throws IOException {
+            @RequestPart(name = "req", required = false) ImageReqDto req) throws Exception {
         if (callCnt >= RESTRICTCNT) {
             return ResponseEntity.ok(ResponseDto.error("1", "과금 문제로 인해 일 이용 횟수를 제한하고 있습니다. 이용해주셔서 감사합니다."));
         }
         callCnt++;
-        return ResponseEntity.ok(diaryService.describeImage(image));
+        long userNo = jwtProvider.getUserNo();
+        return ResponseEntity.ok(diaryService.describeImage(image, userNo));
     }
 
     @Operation(
@@ -52,8 +56,9 @@ public class DiaryController {
             @ApiResponse(responseCode = "200", description = "질문 전송 성공"),
             @ApiResponse(responseCode = "400", description = "에러 코드 정의 필요")})
     @PostMapping("/question")
-    public ResponseEntity<ResponseDto<QuestionResDto>> question(@RequestBody QuestionReqDto req) {
-        return ResponseEntity.ok(diaryService.question(req));
+    public ResponseEntity<ResponseDto<QuestionResDto>> question(@RequestBody QuestionReqDto req) throws Exception {
+        long userNo = jwtProvider.getUserNo();
+        return ResponseEntity.ok(diaryService.question(req, userNo));
     }
 
 }

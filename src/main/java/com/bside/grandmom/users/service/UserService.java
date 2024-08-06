@@ -86,6 +86,10 @@ public class UserService {
         }
     }
 
+    public UserEntity getUser(long userNo) {
+        return userRepository.findByUserNo(userNo);
+    }
+
     public String kakaoLogin() {
         return kakaoClientService.authorize();
     }

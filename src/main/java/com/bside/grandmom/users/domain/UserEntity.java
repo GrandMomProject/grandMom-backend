@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,6 +63,8 @@ public class UserEntity {
     private String imgDesc;
 
     @Column(name = "REG_DT")
+    @Temporal(TemporalType.TIMESTAMP)
+    @CreationTimestamp
     private Date regDt;
 
     @Column(name = "LAST_DT")
