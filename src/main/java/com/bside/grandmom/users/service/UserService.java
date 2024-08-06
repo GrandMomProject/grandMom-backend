@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -26,7 +27,7 @@ public class UserService {
     private final KakaoClientService kakaoClientService;
     private final JwtProvider jwtProvider;
 
-    public ResponseDto<Void> memberReg(RegReqDto req, HttpServletResponse response) {
+    public ResponseDto<?> memberReg(RegReqDto req, HttpServletResponse response) {
         try {
             // UID 또는 DID가 중복된 사용자가 있는지 확인
 //            UserEntity existingUser = userRepository.findByDid(req.getDid());
@@ -61,8 +62,10 @@ public class UserService {
 
             // 토큰을 response 헤더에 추가
             response.addHeader("Authorization", "Bearer " + jwt);
+            Map<String, Object> result = new HashMap<>();
+            result.put("accessToken", jwt);
 
-            return ResponseDto.success();
+            return ResponseDto.success(result);
         } catch (Exception error) {
             log.error("Failed Join.. Server Error", error);
             return ResponseDto.error("999", "Failed Join.. Server Error");

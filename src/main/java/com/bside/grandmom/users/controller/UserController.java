@@ -42,33 +42,11 @@ public class UserController {
         // 토큰 responose header에 넣어서 redirect 해주기
         response.addHeader("Authorization", "Bearer " + jwt);
         response.sendRedirect("http://localhost:3000/");
-        /*// 인가 코드로 엑세스 토큰 받기
-        Map accessToken = userService.getKakaoToken(code);
 
-        // 유저 정보 가져오기
-        Map result = userService.getKakaoProfile(accessToken.get("access_token").toString());
-
-        // 유저 정보 db에 있는지 확인
-        UserEntity chkUser = userService.checkUser(result.get("id").toString());
-        long userNo;
-        if(chkUser == null || chkUser.getUserNo() == null){
-            // 유저 정보 저장
-            userNo = userService.saveUser(result);
-        } else {
-            userNo = chkUser.getUserNo();
-        }
-
-        // 토큰 생성
-        JwtProvider jwtProvider = new JwtProvider();
-        String jwt = jwtProvider.createJwt(userNo);
-
-        // 토큰 responose header에 넣어서 redirect 해주기
-        response.addHeader("Authorization", "Bearer " + jwt);
-        response.sendRedirect("http://localhost:3000/");*/
     }
 
     @PostMapping("/reg")
-    public ResponseEntity<ResponseDto<Void>> reg(@RequestBody RegReqDto req, HttpServletResponse response) {
+    public ResponseEntity<ResponseDto<?>> reg(@RequestBody RegReqDto req, HttpServletResponse response) {
         return ResponseEntity.ok(userService.memberReg(req, response));
     }
 
