@@ -33,19 +33,20 @@ public class UserController {
     public void kakaoLogin(HttpServletResponse response) throws IOException {
         String url = userService.kakaoLogin();
         response.sendRedirect(url);
-//        response.sendRedirect("https://kauth.kakao.com/oauth/authorize?client_id=1839b2d52be1552b24b1eebb70993e6f&redirect_uri=https://webhook.site/686eef94-6862-447e-8e9f-b69c2784043c&response_type=code");
     }
 
     @GetMapping("/kakao/callback")
     public void kakaoCallback(@RequestParam(name = "code") String code, HttpServletResponse response) throws IOException {
-        System.out.println("code:" + code);
-        // 인가 코드로 엑세스 토큰 받기
+        String jwt = userService.kakaoCallbackProc(code, response);
+
+        // 토큰 responose header에 넣어서 redirect 해주기
+        response.addHeader("Authorization", "Bearer " + jwt);
+        response.sendRedirect("http://localhost:3000/");
+        /*// 인가 코드로 엑세스 토큰 받기
         Map accessToken = userService.getKakaoToken(code);
-        System.out.println("accessToken:" + accessToken);
 
         // 유저 정보 가져오기
         Map result = userService.getKakaoProfile(accessToken.get("access_token").toString());
-        System.out.println("result===" + result);
 
         // 유저 정보 db에 있는지 확인
         UserEntity chkUser = userService.checkUser(result.get("id").toString());
@@ -63,12 +64,12 @@ public class UserController {
 
         // 토큰 responose header에 넣어서 redirect 해주기
         response.addHeader("Authorization", "Bearer " + jwt);
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect("http://localhost:3000/");*/
     }
 
     @PostMapping("/reg")
-    public ResponseEntity<ResponseDto<Void>> reg(@RequestBody RegReqDto req) {
-        return ResponseEntity.ok(userService.memberReg(req));
+    public ResponseEntity<ResponseDto<Void>> reg(@RequestBody RegReqDto req, HttpServletResponse response) {
+        return ResponseEntity.ok(userService.memberReg(req, response));
     }
 
     @GetMapping("/")

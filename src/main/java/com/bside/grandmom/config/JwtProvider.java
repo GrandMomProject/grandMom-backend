@@ -3,19 +3,22 @@ package com.bside.grandmom.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
-@Service
+@Component
 public class JwtProvider {
-    private Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${secret-key}")
+    private String secretKey;
 
     /**
     JWT 생성
@@ -24,7 +27,8 @@ public class JwtProvider {
      */
     public String createJwt(Long userNo){
         Date now = new Date();
-
+        System.out.println("secretKey:"+secretKey);
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .setHeaderParam("type","jwt")
                 .claim("userNo",userNo)
@@ -36,6 +40,7 @@ public class JwtProvider {
 
     public String createRepJwt(int repInx){
         Date now = new Date();
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
                 .setHeaderParam("type","jwt")
                 .claim("repInx",repInx)
@@ -64,7 +69,7 @@ public class JwtProvider {
         if(accessToken == null || accessToken.length() == 0){
             throw new Exception();
         }
-
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         // 2. JWT parsing
         Jws<Claims> claims;
         try{
@@ -81,6 +86,7 @@ public class JwtProvider {
     }
     public long validate(String jwt) {
         long subject = 0L;
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         try{
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(key)

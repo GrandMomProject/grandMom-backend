@@ -54,3 +54,5 @@ oauth:
     client_id: ${oauth.kakao.client_id}
     redirect_uri: ${oauth.kakao.redirect_uri}
     admin_key: ${oauth.kakao.admin_key}
+
+secret-key: ${sercret-key}
