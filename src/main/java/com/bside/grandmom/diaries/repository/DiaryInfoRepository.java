@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface DiaryInfoRepository extends JpaRepository<DiaryInfoEntity, Long> {
     // userNo를 기준으로 no가 가장 높은 DiaryInfoEntity를 가져오는 메서드
-    @Query("SELECT d FROM DiaryInfoEntity d WHERE d.user.userNo = :userNo ORDER BY d.no DESC")
+    @Query("SELECT d FROM DiaryInfoEntity d WHERE d.user.userNo = :userNo ORDER BY d.no DESC LIMIT 1")
     Optional<DiaryInfoEntity> findTopByUser_UserNoOrderByNoDesc(@Param("userNo") Long userNo);
 }

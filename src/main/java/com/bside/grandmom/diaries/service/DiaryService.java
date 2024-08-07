@@ -218,8 +218,9 @@ public class DiaryService {
     public ResponseDto<QuestionResDto> question(QuestionReqDto request, long userNo) {
         // UserEntity 객체 가져오기
         UserEntity user = userService.getUser(userNo);
+        int answerCount = request.getAnswerCount();
         // 사용자의 응답 저장
-        questionService.addAnswer(user, request.getAnswerCount(), request.getAnswer());
+        questionService.addAnswer(user, answerCount, request.getAnswer());
         log.info("대답:{}", request.getAnswer());
 
         // operationType 결정
@@ -232,34 +233,35 @@ public class DiaryService {
 
         // 새로운 질문이 생성된 경우 DB에 저장
         if (operationType.equals(QUESTION)) {
-            questionService.addQuestion(user, request.getAnswerCount() + 1, ((QuestionValue) value).question());
+            questionService.addQuestion(user, answerCount + 1, ((QuestionValue) value).question());
         }
 
         // QuestionResDto 객체 생성
-        QuestionResDto questionResDto = new QuestionResDto(operationType, value, request.getAnswerCount() + 1);
+        QuestionResDto questionResDto = new QuestionResDto(operationType, value, answerCount + 1);
 
         // DiaryInfoEntity 가져오기
         DiaryInfoEntity diaryInfo = diaryInfoService.getLatestDiaryInfoByUserNo(userNo);
 
         // DiaryDetailEntity 설정 및 저장
-        DiaryDetailEntity diaryDetail;
-        if (operationType.equals(SUMMARY) && value instanceof SummaryValue summaryValue) {
-            diaryDetail = DiaryDetailEntity.builder()
-                    .diaryInfo(diaryInfo)
-                    .userNo(userNo)
-                    .v1(summaryValue.summary1())
-                    .v2(summaryValue.summary2())
-                    .v3(summaryValue.summary3()).build();
-        } else {
-            diaryDetail = DiaryDetailEntity.builder()
-                    .diaryInfo(diaryInfo)
-                    .userNo(userNo)
-                    .v1("")
-                    .v2("")
-                    .v3("").build();
+        if (answerCount >= 3) {
+            DiaryDetailEntity diaryDetail;
+            if (operationType.equals(SUMMARY) && value instanceof SummaryValue summaryValue) {
+                diaryDetail = DiaryDetailEntity.builder()
+                        .diaryInfo(diaryInfo)
+                        .userNo(userNo)
+                        .v1(summaryValue.summary1())
+                        .v2(summaryValue.summary2())
+                        .v3(summaryValue.summary3()).build();
+            } else {
+                diaryDetail = DiaryDetailEntity.builder()
+                        .diaryInfo(diaryInfo)
+                        .userNo(userNo)
+                        .v1("")
+                        .v2("")
+                        .v3("").build();
+            }
+            diaryDetailService.saveImage(diaryDetail);
         }
-
-        diaryDetailService.saveImage(diaryDetail);
         return ResponseDto.success(questionResDto);
     }
 
@@ -294,7 +296,7 @@ public class DiaryService {
         return true;
     }
 
-    public ResponseDto<List<DiaryResDto>> getDiaryList(long userNo){
+    public ResponseDto<List<DiaryResDto>> getDiaryList(long userNo) {
         return ResponseDto.success(diaryDetailService.findAllWithImgByUserNo(userNo));
     }
 }

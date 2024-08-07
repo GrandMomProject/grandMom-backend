@@ -13,12 +13,21 @@ import java.util.List;
 public class DiaryDetailService {
     private final DiaryDetailRepository diaryDetailRepository;
 
-    public void saveImage(DiaryDetailEntity diaryDetail){
+    public void saveImage(DiaryDetailEntity diaryDetail) {
         diaryDetailRepository.save(diaryDetail);
     }
 
     public List<DiaryResDto> findAllWithImgByUserNo(long userNo) {
-        return diaryDetailRepository.findAllWithImgByUserNo(userNo);
+        List<DiaryResDto> diaryResDtoList = diaryDetailRepository.findAllWithImgByUserNo(userNo);
+
+        for (DiaryResDto dto : diaryResDtoList) {
+            if (dto.getImg() != null) {
+                String[] parts = dto.getImg().split("/");
+                String newImgPath = "/grandmom/images/" + parts[parts.length - 1];
+                dto.setImg(newImgPath);
+            }
+        }
+        return diaryResDtoList;
     }
 
 }
