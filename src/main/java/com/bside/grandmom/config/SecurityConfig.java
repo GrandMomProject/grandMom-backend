@@ -39,7 +39,7 @@ public class SecurityConfig  {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/", "/users/sign-in", "/users/sign-out", "/users/**",
-                                "/api", "/swagger-ui/**", "/v3/**", "/images/**", "/error").permitAll()
+                                "/api", "/swagger-ui/**", "/v3/**", "/images/**", "/error", "/diary/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
