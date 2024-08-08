@@ -152,7 +152,7 @@ public class DiaryService {
         try {
             Date today = sdf.parse(todayStr);
             Date userUpdDt = sdf.parse(userUpdDtStr);
-            if (userUpdDt.equals(today) && useCnt >= 3) {
+            if (userUpdDt.equals(today) && useCnt >= 100) {
                 return ResponseDto.error("1", "과금 문제로 인해 일 3회로 횟수를 제한하고 있습니다. 이용해주셔서 감사합니다.");
             } else if (!userUpdDt.equals(today)) {
                 user.resetUseCnt();
