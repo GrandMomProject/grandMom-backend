@@ -12,4 +12,6 @@ public class RegReqDto {
     String did;
     char gender;
     char agreementYn;
+
+    String loginType;
 }

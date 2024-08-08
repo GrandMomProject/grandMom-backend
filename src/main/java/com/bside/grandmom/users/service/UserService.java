@@ -52,6 +52,7 @@ public class UserService {
                         .gender(req.getGender())
                         .agreementYn(req.getAgreementYn())
                         .regDt(today)
+                        .loginType(req.getLoginType())
                         .build();
 
                 savedUser = userRepository.save(user);
